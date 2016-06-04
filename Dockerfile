@@ -1,45 +1,49 @@
 FROM ubuntu:16.04
 
+# --------------------------- ubuntu ------------------------------------------
 RUN apt-get -y update
-RUN	apt-get -y install git build-essential cmake
-RUN	apt-get -y install clang
+RUN	apt-get -y install git build-essential cmake clang wget
 
+# --------------------------- sexpr -------------------------------------------
 RUN git clone https://github.com/WebAssembly/sexpr-wasm-prototype.git
-
 # SHA from branch binary_0xa
 RUN cd sexpr-wasm-prototype && \
 	git checkout 98729df && \
 	git submodule update --init
-
 RUN cd sexpr-wasm-prototype && make -j8
 
-ADD ./wast /wast
-RUN mkdir -p /wasm
-RUN /sexpr-wasm-prototype/out/sexpr-wasm /wast/hello_world.wast -o  /wasm/hello_world.wasm
-
+# -------------------------- node ---------------------------------------------
 RUN git clone https://github.com/nodejs/node.git
-
 # SHA from branch vee-eight-5.1
 RUN cd node && \
 	git checkout 61ed0bb && \
 	./configure && \
 	make -j8
-	
-RUN	apt-get -y install wget
 
-# Add emscripten
+# ------------------------ emscripten -----------------------------------------
 RUN wget https://s3.amazonaws.com/mozilla-games/emscripten/releases/emsdk-portable.tar.gz
 RUN tar -xvf emsdk-portable.tar.gz
 RUN cd /emsdk_portable && \
 	./emsdk update && \
-	./emsdk install latest && \
-	./emsdk activate latest
-# RUN cd /emsdk_portable && source ./emsdk_env.sh
+	./emsdk install sdk-incoming-64bit && \
+	./emsdk activate sdk-incoming-64bit
+ENV PATH /emsdk_portable:/emsdk_portable/clang/fastcomp/build_incoming_64/bin:\
+	/emsdk_portable/node/4.1.1_64bit/bin:/emsdk_portable/emscripten/incoming:\
+	/node/out/Release/:/sexpr-wasm-prototype/out/:/usr/local/sbin:/usr/local/bin:\
+	/usr/sbin:/usr/bin:/sbin:/bin
 
-# Add binaryen
+# ------------------------- binaryen ------------------------------------------
 RUN git clone https://github.com/WebAssembly/binaryen.git
 RUN cd /binaryen && cmake . && make
-	
+
+# -------------------------- compile ------------------------------------------
+ADD ./cpp /cpp
 ADD ./src /src
+RUN mkdir -p /build
+RUN mkdir -p /wasm
+RUN cd /build && emcc -s BINARYEN=1 /cpp/hello_world.c
+RUN cd /build && sexpr-wasm /build/a.out.wast -o /wasm/hello_world.wasm
+
+# ---------------------------- run --------------------------------------------
 WORKDIR /src
-ENTRYPOINT /node/out/Release/node --expose-wasm index.js
+ENTRYPOINT /node/out/Release/node --expose-wasm /src/index.js
