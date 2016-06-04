@@ -37,13 +37,14 @@ RUN git clone https://github.com/WebAssembly/binaryen.git
 RUN cd /binaryen && cmake . && make
 
 # -------------------------- compile ------------------------------------------
+RUN	apt-get -y install vim
 ADD ./cpp /cpp
-ADD ./src /src
+ADD ./js /js
 RUN mkdir -p /build
 RUN mkdir -p /wasm
-RUN cd /build && emcc -s BINARYEN=1 /cpp/hello_world.c
+RUN cd /build && emcc /cpp/hello_world.c -s BINARYEN=1 -O0 -s ONLY_MY_CODE=1
 RUN cd /build && sexpr-wasm /build/a.out.wast -o /wasm/hello_world.wasm
 
 # ---------------------------- run --------------------------------------------
-WORKDIR /src
-ENTRYPOINT /node/out/Release/node --expose-wasm /src/index.js
+WORKDIR /js
+ENTRYPOINT /node/out/Release/node --expose-wasm /js/index.js
