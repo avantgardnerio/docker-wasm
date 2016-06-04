@@ -24,7 +24,22 @@ RUN cd node && \
 	git checkout 61ed0bb && \
 	./configure && \
 	make -j8
+	
+RUN	apt-get -y install wget
 
+# Add emscripten
+RUN wget https://s3.amazonaws.com/mozilla-games/emscripten/releases/emsdk-portable.tar.gz
+RUN tar -xvf emsdk-portable.tar.gz
+RUN cd /emsdk_portable && \
+	./emsdk update && \
+	./emsdk install latest && \
+	./emsdk activate latest
+# RUN cd /emsdk_portable && source ./emsdk_env.sh
+
+# Add binaryen
+RUN git clone https://github.com/WebAssembly/binaryen.git
+RUN cd /binaryen && cmake . && make
+	
 ADD ./src /src
 WORKDIR /src
 ENTRYPOINT /node/out/Release/node --expose-wasm index.js
