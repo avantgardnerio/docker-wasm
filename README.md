@@ -1,7 +1,7 @@
 Build
 -----
-docker build -t docker-wasm .
+./build.sh
 
 Run
 ---
-docker run docker-wasm
+./run.sh
