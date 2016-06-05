@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const buffer = fs.readFileSync('/wasm/hello_world.wasm');
+const buffer = fs.readFileSync('/build/hello_world.wasm');
 
 var ffi = {
     env: {
