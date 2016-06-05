@@ -4,7 +4,8 @@ const buffer = fs.readFileSync('/build/hello_world.wasm');
 
 var ffi = {
     env: {
-        abort: function() {}
+        abort: function() {},
+        _foo: function() {return 42}
     }
 };
 

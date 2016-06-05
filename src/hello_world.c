@@ -1,3 +1,5 @@
+extern int foo(void);
+
 int main() {
-   return 42;
+   return foo();
 }
