@@ -4,22 +4,23 @@ const buffer = fs.readFileSync('/build/hello_world.wasm');
 
 var ffi = {
     env: {
-        abort: function() {},
-        abortStackOverflow: function() {},
-        nullFunc_ii: function() {},
-		nullFunc_iiii: function() {},
-		nullFunc_vi: function() {},
-		_pthread_cleanup_pop: function() {},
-		___lock: function() {},
-		_abort: function() {},
-		_pthread_cleanup_push: function() {},
-		___syscall6: function() {},
-		_sbrk: function() {},
-		___syscall140: function() {},
-		_emscripten_memcpy_big: function() {},
-		___syscall54: function() {},
-		___unlock: function() {},
-		___syscall146: function() {},
+        abort: function() { console.log("abort") },
+        abortStackOverflow: function() { console.log("abortStackOverflow") },
+        nullFunc_ii: function() { console.log("nullFunc_ii") },
+		nullFunc_iiii: function() { console.log("nullFunc_iiii") },
+		nullFunc_vi: function() { console.log("nullFunc_vi") },
+		_pthread_cleanup_pop: function() { console.log("_pthread_cleanup_pop") },
+		___lock: function() { console.log("___lock") },
+		_abort: function() { console.log("_abort") },
+		_pthread_cleanup_push: function() { console.log("_pthread_cleanup_push") },
+		___syscall6: function() { console.log("___syscall6") },
+		_sbrk: function() { console.log("_sbrk") },
+		___syscall140: function() { console.log("___syscall140") },
+		_emscripten_memcpy_big: function() { console.log("_emscripten_memcpy_big") },
+		___syscall54: function() { console.log("___syscall54") },
+		___unlock: function() { console.log("___unlock") },
+		___syscall146: function() { console.log("___syscall146") },
+		
         _foo: function() {return 42}
     }
 };
