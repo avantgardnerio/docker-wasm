@@ -41,10 +41,15 @@ RUN cd /binaryen && cmake . && make
 
 RUN	apt-get -y install vim
 
+# Force binaryen to cache stuff
+RUN cd /tmp && \
+	echo "int main() { return 0; }" > /tmp/test.c && \
+	emcc /tmp/test.c -s BINARYEN=1 -O0 -s ONLY_MY_CODE=1 -o index.js
+
 # ---------------------------- run --------------------------------------------
 WORKDIR /src
 ENTRYPOINT cd /build && \
 	emcc /src/hello_world.c -s BINARYEN=1 -O0 -s ONLY_MY_CODE=1 -o index.js && \
-	sexpr-wasm /build/a.out.wast -o /build/hello_world.wasm && \
+	sexpr-wasm /build/index.wast -o /build/hello_world.wasm && \
 	/node/out/Release/node --expose-wasm /src/index.js && \
 	chmod ugo+rw *
