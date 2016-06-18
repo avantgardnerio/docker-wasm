@@ -20,7 +20,7 @@ var ffi = {
 		___syscall54: function() { console.log("___syscall54") },
 		___unlock: function() { console.log("___unlock") },
 		___syscall146: function() { console.log("___syscall146") },
-		
+
         _foo: function() {return 42}
     }
 };

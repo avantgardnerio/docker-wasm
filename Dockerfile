@@ -27,12 +27,15 @@ RUN cd /emsdk_portable && \
 	./emsdk update && \
 	./emsdk install sdk-incoming-64bit && \
 	./emsdk activate sdk-incoming-64bit
-ENV PATH /emsdk_portable:/emsdk_portable/clang/fastcomp/build_incoming_64/bin:\
+ENV PATH /binaryen/bin/:/node:/emsdk_portable:/emsdk_portable/clang/fastcomp/build_incoming_64/bin:\
 	/emsdk_portable/node/4.1.1_64bit/bin:/emsdk_portable/emscripten/incoming:\
 	/node/out/Release/:/sexpr-wasm-prototype/out/:/usr/local/sbin:/usr/local/bin:\
 	/usr/sbin:/usr/bin:/sbin:/bin
 
 # ------------------------- binaryen ------------------------------------------
+# Last version with 0xa support: 31dd39afd6197743d3ccbb2cfa4276134c6751d2
+# wasm-as index.wast > index.wasm
+# Produces error: Result = section string of size 110 longer than total section bytes 6 @+8
 RUN git clone https://github.com/WebAssembly/binaryen.git
 RUN cd /binaryen && cmake . && make
 
@@ -41,6 +44,7 @@ RUN	apt-get -y install vim
 # ---------------------------- run --------------------------------------------
 WORKDIR /src
 ENTRYPOINT cd /build && \
-	emcc /src/hello_world.c -s BINARYEN=1 -O0 -s ONLY_MY_CODE=1 && \
+	emcc /src/hello_world.c -s BINARYEN=1 -O0 -s ONLY_MY_CODE=1 -o index.js && \
 	sexpr-wasm /build/a.out.wast -o /build/hello_world.wasm && \
-	/node/out/Release/node --expose-wasm /src/index.js
+	/node/out/Release/node --expose-wasm /src/index.js && \
+	chmod ugo+rw *
